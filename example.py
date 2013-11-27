@@ -1,3 +1,4 @@
+import os
 import sys
 import signal
 import select
@@ -13,6 +14,11 @@ with signalfd(mask) as fd:
     poll.register(sys.stdin, select.POLLIN)
 
     # Print signals as they are received until user presses <RETURN>.
+
+    print '=' * 70
+    print 'Send signals to this process (%d) or press RETURN to exit.' % os.getpid()
+    print '=' * 70
+
     while True:
         events = dict(poll.poll())
 
