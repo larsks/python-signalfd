@@ -54,8 +54,6 @@ class sigset (object):
 def sigprocmask(signals, mode=SIG_SETMASK):
     '''Examine and change blocked signals'''
 
-    print 'SIGS', [x for x in signals.sigset.__val]
-
     if not mode in [SIG_BLOCK, SIG_UNBLOCK, SIG_SETMASK]:
         raise ValueError('invalid mode')
 
