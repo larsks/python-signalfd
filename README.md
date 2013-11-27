@@ -18,30 +18,32 @@ You will need the [cffi][2] module for Python.
 
 ## Examples
 
+    import sys
     import signal
     import select
-    from signalfd.sigset import sigset
-    from signalfd.signalfd import signalfd
+    from signalfd import signalfd, sigset
 
+    # Create a signal set containing all signals.
     mask = sigset()
-    mask.add(signal.SIGINT)
-    mask.add(signal.SIGQUIT)
+    mask.fill()
 
-    # Using a signalfd object as a context manager means
-    # that it will automatically take care of setting and
-    # restoring the process signal mask via sigprocmask().
     with signalfd(mask) as fd:
         poll = select.poll()
         poll.register(fd,  select.POLLIN)
+        poll.register(sys.stdin, select.POLLIN)
 
-        # Send SIGINT (^C) or SIGQUIT (^\) and watch them
-        # get caught and handled.
+        # Print signals as they are received until user presses
+        # <RETURN>.
         while True:
             events = dict(poll.poll())
 
             if fd.fileno() in events:
                 info = fd.info()
                 print 'received signal %d' % info.ssi_signo
+
+            if sys.stdin.fileno() in events:
+                print 'all done'
+                break
 
 ## License
 
