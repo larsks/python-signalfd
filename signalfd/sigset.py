@@ -4,10 +4,7 @@ import os
 import sys
 
 from .common import ffi, crt
-
-SIG_BLOCK   = 0
-SIG_UNBLOCK = 1
-SIG_SETMASK = 2
+from .constants import *
 
 ffi.cdef('''
 typedef struct {
@@ -25,7 +22,7 @@ int sigprocmask(int how, const sigset_t *set, sigset_t *oldset);
 ''')
 
 class sigset (object):
-    '''This is a thin wrapper over the sigsetops(3) functionality.'''
+    '''This is a thin wrapper over sigsetops(3)'''
 
     def __init__ (self, signals=None):
         self.sigset = ffi.new('sigset_t *')
@@ -48,7 +45,7 @@ class sigset (object):
 
     def remove(self, sig):
         '''Remove the specified signal from the signal set'''
-        crt.sigaddset(self.sigset, sig)
+        crt.sigdelset(self.sigset, sig)
 
     def ismember(self, sig):
         '''Test if the specified signal is a member of the signal set'''
@@ -56,6 +53,8 @@ class sigset (object):
 
 def sigprocmask(signals, mode=SIG_SETMASK):
     '''Examine and change blocked signals'''
+
+    print 'SIGS', [x for x in signals.sigset.__val]
 
     if not mode in [SIG_BLOCK, SIG_UNBLOCK, SIG_SETMASK]:
         raise ValueError('invalid mode')

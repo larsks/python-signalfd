@@ -5,10 +5,8 @@ import sys
 import signal
 
 from .common import ffi, crt
-from .sigset import sigset, sigprocmask
-
-SFD_NONBLOCK = 00004000
-SFD_CLOEXEC = 02000000
+from .sigset import sigprocmask
+from .constants import *
 
 ffi.cdef('''
 struct signalfd_siginfo {
@@ -45,11 +43,10 @@ class signalfd (object):
             self.flags = flags
 
         self.signals = signals
-        self.oldsignals = None
         self.fd = crt.signalfd(-1, self.signals.sigset, self.flags)
 
     def __enter__(self):
-        self.oldsignals = sigprocmask(self.signals)
+        self.oldsignals = sigprocmask(self.signals, SIG_BLOCK)
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
@@ -62,7 +59,7 @@ class signalfd (object):
     def close(self):
         os.close(self.fd)
 
-    def siginfo(self):
+    def info(self):
         info = ffi.new('struct signalfd_siginfo *')
         buffer = ffi.buffer(info)
         buffer[:] = os.read(self.fd, ffi.sizeof('struct signalfd_siginfo'))
