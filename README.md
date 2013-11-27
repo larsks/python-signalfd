@@ -27,10 +27,15 @@ You will need the [cffi][2] module for Python.
     mask.add(signal.SIGINT)
     mask.add(signal.SIGQUIT)
 
+    # Using a signalfd object as a context manager means
+    # that it will automatically take care of setting and
+    # restoring the process signal mask via sigprocmask().
     with signalfd(mask) as fd:
         poll = select.poll()
         poll.register(fd,  select.POLLIN)
 
+        # Send SIGINT (^C) or SIGQUIT (^\) and watch them
+        # get caught and handled.
         while True:
             events = dict(poll.poll())
 

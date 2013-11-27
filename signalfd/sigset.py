@@ -52,7 +52,30 @@ class sigset (object):
         return crt.sigismember(self.sigset, sig) == 1
 
 def sigprocmask(signals, mode=SIG_SETMASK):
-    '''Examine and change blocked signals'''
+    '''Examine and change blocked signals
+
+    - `signals` is a sigset object.
+    - `mode` controls how sigprocmask() interprets the signal mask (see
+      below)
+    
+    sigprocmask() is used to fetch and/or change the signal mask of the calling thread.
+    The signal mask is the set of signals whose delivery is currently blocked  for  the
+    caller (see also signal(7) for more details).
+ 
+    The behavior of the call is dependent on the value of mode, as follows.
+ 
+    signalfd.SIG_BLOCK
+           The set of blocked signals is the union of the current set and the set
+           argument.
+ 
+    signalfd.SIG_UNBLOCK
+           The signals in set are removed from the current set of blocked signals.   It
+           is permissible to attempt to unblock a signal which is not blocked.
+ 
+    signalfd.SIG_SETMASK
+           The set of blocked signals is set to the argument set.
+
+    '''
 
     if not mode in [SIG_BLOCK, SIG_UNBLOCK, SIG_SETMASK]:
         raise ValueError('invalid mode')
